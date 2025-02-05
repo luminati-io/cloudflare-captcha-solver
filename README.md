@@ -42,6 +42,65 @@ Bright Data’s CAPTCHA Solver is integrated into the **Scraping Browser** and *
 ### **Automatic CAPTCHA Solving**  
 The CAPTCHA Solver automatically detects and resolves CAPTCHAs in real-time. Simply enable the feature, and it will handle everything from detection to solving.  
 
+### **Custom Options for Cloudflare Challenges**  
+```javascript
+// Define default options for different CAPTCHA types
+function getCaptchaOptions(captchaType, customOptions = {}) {
+  const defaultOptions = {
+    timeout: 30000, // Maximum time (in ms) to wait for CAPTCHA solving
+    check_timeout: 500, // Interval (in ms) to check the CAPTCHA's status
+    wait_networkidle: { timeout: 1000 }, // Wait until the network is idle for 1 second
+    debug: false // Debug mode (disabled by default)
+  };
+
+  // Define CAPTCHA-specific selectors
+  const captchaSelectors = {
+    DataDome: { selector: '#datadome-captcha', success_selector: '#captcha-success' },
+    reCAPTCHA: { selector: '.g-recaptcha', success_selector: '.recaptcha-success' },
+    ClickCaptcha: { selector: '.click-captcha', success_selector: '.captcha-passed' },
+    hCaptcha: { selector: '.h-captcha', success_selector: '.hcaptcha-success' },
+    PerimeterX: { selector: '#px-captcha', success_selector: '#px-success' },
+    SimpleCaptcha: { selector: '.simple-captcha', success_selector: '.captcha-done' },
+    FunCaptcha: { selector: '.funcaptcha', success_selector: '.funcaptcha-success' },
+    CloudflareTurnstile: { selector: '.cf-turnstile', success_selector: '.cf-success' },
+    AWSWAF: { selector: '#aws-waf-captcha', success_selector: '#aws-waf-success' },
+    GeeTest: { selector: '.geetest-captcha', success_selector: '.geetest-success' },
+    KeyCAPTCHA: { selector: '#keycaptcha', success_selector: '#keycaptcha-success' },
+    PuzzleCAPTCHA: { selector: '.puzzle-captcha', success_selector: '.puzzle-solved' },
+    YandexCAPTCHA: { selector: '#yandex-captcha', success_selector: '#yandex-success' },
+    ImageCAPTCHA: { selector: '.image-captcha', success_selector: '.image-captcha-success' },
+    TextCAPTCHA: { selector: '.text-captcha', success_selector: '.text-captcha-success' }
+  };
+
+  // Get the correct selectors for the given CAPTCHA type
+  const selectedOptions = captchaSelectors[captchaType] || {};
+
+  // Merge default options with selected CAPTCHA-specific options and any custom overrides
+  return { ...defaultOptions, ...selectedOptions, ...customOptions };
+}
+
+// Example usage for different CAPTCHA types
+const ddOptions = getCaptchaOptions('DataDome', { timeout: 40000, debug: true });
+const recaptchaOptions = getCaptchaOptions('reCAPTCHA', { debug: true });
+const hcaptchaOptions = getCaptchaOptions('hCaptcha');
+
+console.log(ddOptions);
+console.log(recaptchaOptions);
+console.log(hcaptchaOptions);
+
+// Example error handling
+try {
+  if (!document.querySelector(ddOptions.selector)) {
+    throw new Error(`CAPTCHA element not found using selector: ${ddOptions.selector}`);
+  }
+
+  // Your CAPTCHA-solving logic here
+  solveCaptcha(ddOptions);
+} catch (error) {
+  console.error('Failed to solve CAPTCHA:', error.message);
+}
+```
+
 #### Example Workflow:  
 1. **Detect CAPTCHA**: The solver identifies the CAPTCHA type (e.g., Cloudflare).  
 2. **Solve CAPTCHA**: Using AI-based logic, the solver resolves the CAPTCHA.  
